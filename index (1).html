@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Defendant — The Breadcrumb Web</title>
+<meta name="description" content="He started writing things down so no one could pin anything on him. Then he looked at what he'd written. Then he realized what he had.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #0f0e0d;
+    --ink-mid: #2a2825;
+    --ink-light: #5a5550;
+    --ink-faint: #9a9590;
+    --paper: #f5f2ed;
+    --paper-warm: #ede9e2;
+    --paper-deep: #e0dbd2;
+    --red: #b01c1c;
+    --red-dark: #7a1212;
+    --rule: #c8c2b8;
+    --rule-dark: #8a8278;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 300;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.6;
+  }
+
+  .masthead {
+    border-bottom: 1px solid var(--rule-dark);
+    padding: 14px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--paper);
+    z-index: 100;
+    opacity: 0;
+    animation: fadeIn 0.8s 0.2s ease forwards;
+  }
+  .masthead-title { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-light); }
+  .masthead-date { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--ink-faint); letter-spacing: 0.15em; }
+  .masthead-cta { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--red); text-decoration: none; border: 1px solid var(--red); padding: 5px 12px; transition: all 0.2s; }
+  .masthead-cta:hover { background: var(--red); color: var(--paper); }
+
+  .hero { max-width: 860px; margin: 0 auto; padding: 80px 48px 60px; opacity: 0; animation: fadeUp 1s 0.4s ease forwards; }
+  .hero-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--red); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+  .hero-kicker::before { content: ''; display: block; width: 32px; height: 1px; background: var(--red); }
+  .hero h1 { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(38px, 6.5vw, 76px); font-weight: 900; line-height: 1.0; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 32px; }
+  .hero h1 em { font-style: italic; color: var(--red-dark); }
+  .hero-rule { width: 100%; height: 3px; background: var(--ink); margin-bottom: 32px; }
+  .hero-rule-thin { width: 100%; height: 1px; background: var(--rule); margin: 24px 0; }
+  .hero-deck { font-size: clamp(17px, 2.2vw, 21px); font-weight: 300; line-height: 1.65; color: var(--ink-mid); max-width: 700px; margin-bottom: 40px; }
+  .hero-deck em { font-style: italic; color: var(--ink); }
+  .hero-byline { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--ink-faint); display: flex; flex-wrap: wrap; gap: 32px; }
+  .hero-byline span { color: var(--ink-light); }
+
+  .stat-strip { background-color: var(--rule-dark); display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; opacity: 0; animation: fadeIn 1s 0.9s ease forwards; }
+  .stat-item { background: var(--ink); padding: 28px 32px; text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; font-style: italic; color: var(--paper); line-height: 1; display: block; margin-bottom: 8px; }
+  .stat-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #8a8278; }
+
+  .origin { background: var(--ink); padding: 80px 48px; }
+  .origin-inner { max-width: 860px; margin: 0 auto; }
+  .origin .section-label { color: #6a6560; }
+  .origin .section-label::after { background: #2a2520; }
+  .origin-head { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4.5vw, 50px); font-weight: 900; font-style: italic; color: var(--paper); line-height: 1.15; margin-bottom: 56px; max-width: 680px; }
+  .origin-stages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #2a2520; }
+  .origin-stage { background: #0f0e0d; padding: 36px 28px; position: relative; opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .origin-stage.visible { opacity: 1; transform: translateY(0); }
+  .origin-stage-num { font-family: 'Playfair Display', serif; font-size: 72px; font-weight: 900; font-style: italic; color: #1a1815; line-height: 1; position: absolute; top: 20px; right: 20px; -webkit-text-stroke: 1px #2a2520; }
+  .origin-stage-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--red); margin-bottom: 16px; }
+  .origin-stage-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--paper); line-height: 1.2; margin-bottom: 16px; position: relative; z-index: 1; }
+  .origin-stage-body { font-size: 14px; line-height: 1.7; color: #7a7570; position: relative; z-index: 1; }
+  .origin-connector { display: flex; align-items: center; justify-content: center; margin: 40px 0 0; gap: 16px; }
+  .origin-connector-line { flex: 1; height: 1px; background: #2a2520; }
+  .origin-connector-text { font-family: 'Playfair Display', serif; font-size: 15px; font-style: italic; color: #5a5550; text-align: center; max-width: 480px; line-height: 1.7; }
+
+  .article { max-width: 860px; margin: 0 auto; padding: 72px 48px; }
+  .article-grid { display: grid; grid-template-columns: 1fr 220px; gap: 64px; align-items: start; }
+  .article-body p { font-size: 18px; line-height: 1.75; color: var(--ink-mid); margin-bottom: 22px; }
+  .article-body p.lede { font-size: 21px; font-weight: 400; line-height: 1.65; color: var(--ink); margin-bottom: 28px; }
+  .article-body p strong { font-weight: 600; color: var(--ink); }
+  .article-body p em { font-style: italic; }
+  .pull-quote { border-left: 3px solid var(--red); padding: 0 0 0 24px; margin: 36px 0; }
+  .pull-quote blockquote { font-family: 'Playfair Display', serif; font-size: 24px; font-style: italic; font-weight: 400; line-height: 1.4; color: var(--ink); }
+
+  .section-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--red); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .section-head { font-family: 'Playfair Display', serif; font-size: clamp(26px, 4vw, 40px); font-weight: 700; line-height: 1.15; color: var(--ink); margin-bottom: 28px; }
+
+  .sidebar { position: sticky; top: 80px; }
+  .sidebar-card { background: var(--paper-deep); border: 1px solid var(--rule); padding: 24px; margin-bottom: 20px; }
+  .sidebar-card-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+  .sidebar-card p { font-size: 13px; line-height: 1.6; color: var(--ink-light); margin-bottom: 10px; }
+  .sidebar-card p:last-child { margin-bottom: 0; }
+  .sidebar-cite { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-faint); font-style: italic; }
+
+  .phases { background: var(--paper-warm); border-top: 3px solid var(--ink); border-bottom: 1px solid var(--rule); padding: 64px 48px; }
+  .phases-inner { max-width: 860px; margin: 0 auto; }
+  .phases-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; margin-top: 40px; background: var(--rule); }
+  .phase-card { background: var(--paper-warm); padding: 32px; }
+  .phase-num { font-family: 'Playfair Display', serif; font-size: 56px; font-weight: 900; font-style: italic; color: var(--paper-deep); line-height: 1; margin-bottom: 12px; -webkit-text-stroke: 1px var(--rule-dark); }
+  .phase-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 12px; }
+  .phase-desc { font-size: 14px; line-height: 1.65; color: var(--ink-light); }
+
+  .timeline-section { max-width: 860px; margin: 0 auto; padding: 72px 48px; }
+  .timeline { margin-top: 40px; position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 18px; top: 0; bottom: 0; width: 1px; background: var(--rule); }
+  .timeline-item { display: grid; grid-template-columns: 48px 1fr; gap: 24px; margin-bottom: 40px; opacity: 0; transform: translateX(-20px); transition: all 0.6s ease; }
+  .timeline-item.visible { opacity: 1; transform: translateX(0); }
+  .timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--ink); margin-top: 6px; justify-self: center; position: relative; z-index: 1; }
+  .timeline-dot.red { background: var(--red); }
+  .timeline-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; }
+  .timeline-text { font-size: 16px; line-height: 1.65; color: var(--ink-mid); }
+  .timeline-text strong { color: var(--ink); font-weight: 600; }
+  .timeline-text em { font-style: italic; }
+
+  .amendments-section { background: var(--ink); padding: 72px 48px; }
+  .amendments-inner { max-width: 860px; margin: 0 auto; }
+  .amendments-section .section-label { color: #6a6560; }
+  .amendments-section .section-label::after { background: #2a2520; }
+  .amendments-section .section-head { color: var(--paper); }
+  .amendments-grid { margin-top: 40px; display: grid; gap: 1px; background: #2a2520; }
+  .amendment-row { background: var(--ink); display: grid; grid-template-columns: 130px 1fr; }
+  .amendment-tag { background: #1a1815; padding: 24px 20px; display: flex; flex-direction: column; justify-content: center; }
+  .amendment-num { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; font-style: italic; color: var(--paper); line-height: 1; }
+  .amendment-name { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #5a5550; margin-top: 4px; }
+  .amendment-body { padding: 24px 28px; border-left: 1px solid #2a2520; }
+  .amendment-claim { font-family: 'Playfair Display', serif; font-size: 15px; font-style: italic; color: #c8c2b8; margin-bottom: 8px; line-height: 1.4; }
+  .amendment-detail { font-size: 13px; line-height: 1.6; color: #6a6560; }
+
+  .vault-section { max-width: 860px; margin: 0 auto; padding: 72px 48px; }
+  .vault-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; margin-top: 40px; background: var(--rule); }
+  .vault-card { background: var(--paper); padding: 32px; transition: background 0.2s; }
+  .vault-card:hover { background: var(--paper-deep); }
+  .vault-card-type { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--red); margin-bottom: 12px; }
+  .vault-card-title { font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 700; line-height: 1.3; color: var(--ink); margin-bottom: 10px; }
+  .vault-card-desc { font-size: 13px; line-height: 1.6; color: var(--ink-light); margin-bottom: 16px; }
+  .vault-card-arrow { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--ink-faint); }
+
+  /* ── DOC CARDS ── */
+  .doc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; margin-top: 40px; background: var(--rule); }
+  .doc-card { background: var(--paper); padding: 36px; display: flex; flex-direction: column; gap: 0; }
+  .doc-card--gated { background: var(--ink); }
+  .doc-card-badge { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--red); margin-bottom: 20px; }
+  .doc-card-badge--gated { color: #6a6560; }
+  .doc-card-type { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
+  .doc-card--gated .doc-card-type { color: #4a4540; }
+  .doc-card-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; line-height: 1.25; color: var(--ink); margin-bottom: 8px; }
+  .doc-card--gated .doc-card-title { color: var(--paper); }
+  .doc-card-meta { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: var(--ink-faint); margin-bottom: 20px; }
+  .doc-card--gated .doc-card-meta { color: #4a4540; }
+  .doc-card-desc { font-size: 14px; line-height: 1.65; color: var(--ink-light); flex: 1; margin-bottom: 28px; }
+  .doc-card--gated .doc-card-desc { color: #7a7570; }
+  .doc-btn { display: inline-block; padding: 14px 24px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; border: none; text-decoration: none; text-align: center; transition: all 0.2s; }
+  .doc-btn--download { background: var(--ink); color: var(--paper); }
+  .doc-btn--download:hover { background: var(--red-dark); }
+  .doc-btn--request { background: var(--paper); color: var(--ink); }
+  .doc-btn--request:hover { background: var(--paper-deep); }
+
+  /* ── GATE MODAL ── */
+  .gate-overlay { position: fixed; inset: 0; background: rgba(15,14,13,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+  .gate-overlay.open { opacity: 1; pointer-events: all; }
+  .gate-modal { background: var(--paper); max-width: 540px; width: 100%; padding: 48px; position: relative; transform: translateY(20px); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+  .gate-overlay.open .gate-modal { transform: translateY(0); }
+  .gate-close { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 14px; color: var(--ink-faint); cursor: pointer; font-family: 'IBM Plex Mono', monospace; }
+  .gate-close:hover { color: var(--ink); }
+  .gate-label { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--red); margin-bottom: 12px; }
+  .gate-title { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; line-height: 1.2; color: var(--ink); margin-bottom: 16px; }
+  .gate-desc { font-size: 14px; line-height: 1.65; color: var(--ink-light); margin-bottom: 28px; }
+  .gate-form { display: flex; flex-direction: column; gap: 10px; }
+  .gate-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .gate-form input, .gate-form select, .gate-form textarea { width: 100%; background: var(--paper-warm); border: 1px solid var(--rule); color: var(--ink); padding: 12px 14px; font-family: 'Source Serif 4', serif; font-size: 14px; outline: none; transition: border-color 0.2s; appearance: none; }
+  .gate-form input:focus, .gate-form select:focus, .gate-form textarea:focus { border-color: var(--ink); }
+  .gate-form input::placeholder, .gate-form textarea::placeholder { color: var(--ink-faint); }
+  .gate-submit { background: var(--ink); color: var(--paper); border: none; padding: 14px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+  .gate-submit:hover { background: var(--red-dark); }
+  .gate-note { font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.1em; color: var(--ink-faint); text-align: center; }
+  .gate-success { display: none; text-align: center; padding: 32px 0 8px; }
+  .gate-success-icon { font-size: 32px; color: var(--ink); margin-bottom: 16px; }
+  .gate-success p { font-size: 16px; line-height: 1.6; color: var(--ink-mid); }
+
+  .structural { background: var(--paper-warm); border-left: 3px solid var(--ink); padding: 36px 40px; margin-top: 48px; }
+  .structural p { font-size: 17px; line-height: 1.75; color: var(--ink-mid); max-width: 680px; margin-bottom: 16px; }
+  .structural p:last-child { margin-bottom: 0; }
+  .structural p strong { color: var(--ink); font-weight: 600; }
+
+  .contact-section { background: var(--red-dark); padding: 72px 48px; }
+  .contact-inner { max-width: 680px; margin: 0 auto; text-align: center; }
+  .contact-section .section-label { color: #e08080; justify-content: center; }
+  .contact-section .section-label::before, .contact-section .section-label::after { content: ''; flex: 1; height: 1px; background: #7a3030; }
+  .contact-section .section-head { color: var(--paper); margin-bottom: 20px; }
+  .contact-desc { font-size: 17px; line-height: 1.65; color: #e0b8b8; margin-bottom: 40px; }
+  .contact-form { text-align: left; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-field { margin-bottom: 12px; }
+  .form-field input, .form-field select, .form-field textarea { width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); color: var(--paper); padding: 12px 16px; font-family: 'Source Serif 4', serif; font-size: 14px; outline: none; transition: border-color 0.2s; appearance: none; }
+  .form-field input::placeholder, .form-field textarea::placeholder { color: rgba(255,255,255,0.3); }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color: rgba(255,255,255,0.4); }
+  .form-field select option { background: var(--red-dark); color: var(--paper); }
+  .form-field textarea { min-height: 100px; resize: vertical; }
+  .form-submit { width: 100%; background: var(--paper); color: var(--red-dark); border: none; padding: 16px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-top: 8px; }
+  .form-submit:hover { background: var(--ink); color: var(--paper); }
+  .form-note { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); text-align: center; margin-top: 12px; }
+
+  footer { background: var(--ink); padding: 40px 48px; display: flex; justify-content: space-between; align-items: center; }
+  .footer-left { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: #4a4540; line-height: 1.8; }
+  .footer-right { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.15em; color: #4a4540; text-align: right; line-height: 1.8; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 768px) {
+    .masthead { padding: 12px 20px; }
+    .masthead-date { display: none; }
+    .hero { padding: 48px 20px 40px; }
+    .stat-strip { grid-template-columns: repeat(2, 1fr); }
+    .origin { padding: 56px 20px; }
+    .origin-stages { grid-template-columns: 1fr; }
+    .article { padding: 48px 20px; }
+    .article-grid { grid-template-columns: 1fr; gap: 40px; }
+    .sidebar { position: static; }
+    .phases { padding: 48px 20px; }
+    .phases-grid { grid-template-columns: 1fr; }
+    .timeline-section { padding: 48px 20px; }
+    .amendments-section { padding: 48px 20px; }
+    .amendment-row { grid-template-columns: 90px 1fr; }
+    .vault-section { padding: 48px 20px; }
+    .doc-grid { grid-template-columns: 1fr; }
+    .vault-grid { grid-template-columns: 1fr; }
+    .gate-row { grid-template-columns: 1fr; }
+    .contact-section { padding: 48px 20px; }
+    .form-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 16px; padding: 32px 20px; text-align: center; }
+    .footer-right { text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-title">Civil Rights Public Record</div>
+  <div class="masthead-date">March 2026 — California</div>
+  <a href="#contact" class="masthead-cta">Request Documents</a>
+</header>
+
+<section class="hero">
+  <div class="hero-kicker">Ongoing — No Charges Filed</div>
+  <h1>He Started<br>Writing Things<br>Down <em>Just In Case.</em></h1>
+  <div class="hero-rule"></div>
+  <p class="hero-deck">
+    Not to build a case. Not to file a lawsuit. Just so that <em>if they ever pointed fingers, the fingers would point right back.</em> What he accumulated over three years — across five California jurisdictions, with no charge ever filed against him — turned out to be something else entirely.
+  </p>
+  <div class="hero-rule-thin"></div>
+  <div class="hero-byline">
+    <span>The Defendant</span>
+    <span>Pro Se</span>
+    <span>San Jose · San Diego · Santa Barbara · Ventura · Oxnard</span>
+  </div>
+</section>
+
+<div class="stat-strip">
+  <div class="stat-item"><span class="stat-num">3+</span><div class="stat-label">Years Documented</div></div>
+  <div class="stat-item"><span class="stat-num">0</span><div class="stat-label">Charges Ever Filed</div></div>
+  <div class="stat-item"><span class="stat-num">5</span><div class="stat-label">Amendments Implicated</div></div>
+  <div class="stat-item"><span class="stat-num">0</span><div class="stat-label">Remedies Received</div></div>
+</div>
+
+<section class="origin">
+  <div class="origin-inner">
+    <div class="section-label reveal">How It Started</div>
+    <h2 class="origin-head reveal">The notes came before the tablet.<br>The tablet came before the web.</h2>
+    <div class="origin-stages">
+      <div class="origin-stage reveal">
+        <div class="origin-stage-num">1</div>
+        <div class="origin-stage-label">The Notes</div>
+        <div class="origin-stage-title">Just In Case They Pointed Fingers</div>
+        <div class="origin-stage-body">No device. No system. No plan. Just a man writing things down because he'd seen enough to know that when situations go wrong, the person with the least power gets the most blame. Dates. Places. What happened. Who was there. A trail — not to prove anything, but to survive the accusation that hadn't happened yet.</div>
+      </div>
+      <div class="origin-stage reveal" style="transition-delay:0.15s">
+        <div class="origin-stage-num">2</div>
+        <div class="origin-stage-label">The Tablet</div>
+        <div class="origin-stage-title">Bought for Art.<br>Became Something Else.</div>
+        <div class="origin-stage-body">A cheap tablet — acquired for artwork, not documentation. But the notes were there. The pattern was accumulating. The tool found its purpose the way tools sometimes do: not through intention, but through necessity. The notes migrated. The record grew. The trail started to have shape.</div>
+      </div>
+      <div class="origin-stage reveal" style="transition-delay:0.3s">
+        <div class="origin-stage-num">3</div>
+        <div class="origin-stage-label">The Web</div>
+        <div class="origin-stage-title">He Looked at What He Had.</div>
+        <div class="origin-stage-body">The moment it became something. He sat down, looked at everything accumulated, and understood: this wasn't a trail anymore. The breadcrumbs weren't just pointing somewhere — they were connected to each other. A web. And webs don't just show you where you've been. They catch things.</div>
+      </div>
+    </div>
+    <div class="origin-connector reveal">
+      <div class="origin-connector-line"></div>
+      <div class="origin-connector-text">"It wasn't ever supposed to get this far. It started as Hansel and Gretel's trail leading to the bad guys — just in case. I didn't realize until later that I wasn't just leaving breadcrumbs. I was building a web."</div>
+      <div class="origin-connector-line"></div>
+    </div>
+  </div>
+</section>
+
+<section class="article">
+  <div class="article-grid">
+    <div class="article-body">
+      <div class="section-label">The Story</div>
+      <h2 class="section-head">Persecution Without a Perpetrator</h2>
+      <p class="lede">The most effective form of harm in modern America may be one no court can see: a coordinated campaign conducted entirely through civilian hands, anonymous tips, and platform algorithms — each actor technically lawful, the cumulative effect indistinguishable from state-sanctioned destruction.</p>
+      <p>That is what happened to the Defendant. Over more than three years, across five California jurisdictions, he was subjected to what legal analysts describe as a <strong>distributed coercive campaign</strong> — a systematic effort to isolate, delegitimize, and silence a U.S. citizen and independent journalist without ever filing a single charge against him.</p>
+      <p>It began with narrative. An offense from decades past was resurrected and circulated through informal community networks — not to inform, but to contaminate. Every neutral act he performed afterward was filtered through a pre-established lens of suspicion. <strong>Charging a phone at a public outlet became "loitering." Moving between locations became "casing." Existing in public space while unhoused became "surveillance."</strong></p>
+      <div class="pull-quote"><blockquote>"The conclusion was established first. The facts were bent to match it."</blockquote></div>
+      <p>Anonymous tips triggered repeated police contact — not because officers found cause, but because the tip pipeline was engineered to produce the <em>appearance</em> of scrutiny. Law enforcement interaction, stripped of context, reads as evidence of wrongdoing. The system validated a narrative without ever adjudicating it.</p>
+      <p>When passive methods failed, the tactics escalated. Individuals presented him with apparent opportunities to steal — bait, deliberately placed — then expressed anger when he refused. When consistent refusal made entrapment impossible, the register shifted to explicit threat: <strong>"You either go get it or the homies gonna deal with you."</strong> Criminal extortion under California law. No charge was filed against anyone.</p>
+      <p>His online content was systematically reported to platform algorithms until suppression occurred — eliminating his primary channel for contesting the false narrative being built around him. He was forced to vacate locations repeatedly under threat of physical harm.</p>
+      <p>The campaign was calibrated, legal analysts argue, specifically to his housing instability. No fixed address to receive process. No financial resources to retain counsel. No secure base from which to fight back. The Constitution's protections require the one thing this campaign was designed to destroy: stability.</p>
+      <p>So instead of stability, he used what he had. Notes. Then a tablet. Then the realization — sitting down one day, looking at everything — that what he'd built defensively had become something else. The breadcrumbs had become a web. And the web had been catching things the whole time he was just trying to survive.</p>
+    </div>
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-card-label">Primary Legal Vehicle</div>
+        <p>42 U.S.C. § 1983 — Civil rights action against persons acting under color of state law.</p>
+        <p>Potential <strong>Monell municipal liability</strong> where agencies responded to coordinated tip campaigns without independent probable cause review.</p>
+        <p class="sidebar-cite">Monell v. Dept. of Social Services, 436 U.S. 658 (1978)</p>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-card-label">Key Doctrine</div>
+        <p>The <strong>Mosaic Theory</strong> holds that aggregated surveillance produces privacy violations qualitatively different from any single observation.</p>
+        <p class="sidebar-cite">United States v. Jones, 565 U.S. 400 (2012)</p>
+      </div>
+      <div class="sidebar-card">
+        <div class="sidebar-card-label">Current Status</div>
+        <p>No charges filed. No formal proceedings initiated. Full evidentiary archive maintained and redundantly backed up.</p>
+        <p><strong>Legal dead man's switch: active.</strong></p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="phases">
+  <div class="phases-inner">
+    <div class="section-label reveal">Operational Mechanics</div>
+    <h2 class="section-head reveal">The Four-Phase Architecture</h2>
+    <p class="reveal" style="font-size:17px; color:var(--ink-light); max-width:620px; line-height:1.65;">What made this legally difficult to address wasn't any single act — it was the architecture. When one tactic failed, the system didn't withdraw. It escalated. Three years of documented adaptation is three years of documented evidence.</p>
+    <div class="phases-grid">
+      <div class="phase-card reveal">
+        <div class="phase-num">I</div>
+        <div class="phase-title">Narrative Weaponization</div>
+        <p class="phase-desc">A decades-old offense is resurrected and circulated through community gossip networks — not to inform, but to contaminate. The interpretive environment is poisoned before any direct contact occurs. Every neutral act thereafter becomes apparent confirmation of a verdict already delivered.</p>
+      </div>
+      <div class="phase-card reveal" style="transition-delay:0.1s">
+        <div class="phase-num">II</div>
+        <div class="phase-title">Unwitting Agent Recruitment</div>
+        <p class="phase-desc">Ordinary community members — shopkeepers, neighbors, service workers — are recruited as amplifiers through weaponized empathy. Framed as civic concern, not conspiracy. No overt command issued. Because each civilian believes they're acting independently, the origin of the campaign becomes untraceable.</p>
+      </div>
+      <div class="phase-card reveal" style="transition-delay:0.2s">
+        <div class="phase-num">III</div>
+        <div class="phase-title">The Tip-Badge Loop</div>
+        <p class="phase-desc">Coordinated anonymous tips activate official police response. Even where no charge results, the visual of official questioning becomes symbolic confirmation for community observers. The appearance of scrutiny functions as evidence. The system validates the narrative without ever adjudicating it.</p>
+      </div>
+      <div class="phase-card reveal" style="transition-delay:0.3s">
+        <div class="phase-num">IV</div>
+        <div class="phase-title">Psychological Capture</div>
+        <p class="phase-desc">Provocations are staged. The stimulus is omitted from the record. Only the response is captured. Anger, frustration, or distress is presented as instability — fed back into the narrative engine as confirmation of the original hostile characterization. Cause is erased. Effect is weaponized.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="timeline-section">
+  <div class="section-label reveal">Documented Escalation</div>
+  <h2 class="section-head reveal">When One Tactic Failed,<br>Another Replaced It</h2>
+  <p class="reveal" style="font-size:17px; color:var(--ink-light); max-width:620px; line-height:1.65; margin-bottom:0;">The defining legal characteristic of a coordinated campaign, as distinct from random hostility: it adapts. Three years of documented adaptation is three years of documented evidence of coordination.</p>
+  <div class="timeline">
+    <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-content"><div class="timeline-label">Origin</div><div class="timeline-text"><strong>Narrative seeded.</strong> A historical offense — decades old — resurrected and circulated through informal community networks across multiple California jurisdictions. The interpretive environment contaminated before any direct confrontation.</div></div></div>
+    <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-content"><div class="timeline-label">Recontextualization</div><div class="timeline-text"><strong>Ordinary conduct criminalized.</strong> Charging a phone becomes loitering. Movement becomes casing. Presence becomes surveillance. The same conduct that attracts no attention from a housed individual triggers coordinated suspicion when performed by the Defendant.</div></div></div>
+    <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-content"><div class="timeline-label">Institutional Recruitment</div><div class="timeline-text"><strong>Anonymous tips trigger repeated police contact.</strong> Each contact is a Fourth Amendment event. No independent probable cause established. Each instance a data point in a behavioral profile built without the subject's knowledge or consent.</div></div></div>
+    <div class="timeline-item"><div class="timeline-dot red"></div><div class="timeline-content"><div class="timeline-label">Entrapment Attempts</div><div class="timeline-text"><strong>"Setup by Reaction" documented on multiple occasions.</strong> Bait placed within reach. Anger expressed when the Defendant declined to take it. When consistent refusal made entrapment impossible, the tone shifted to direct threat: <em>"You either go get it or the homies gonna deal with you."</em> Criminal extortion under California law. No charge filed against anyone.</div></div></div>
+    <div class="timeline-item"><div class="timeline-dot red"></div><div class="timeline-content"><div class="timeline-label">Digital Suppression</div><div class="timeline-text"><strong>Online content systematically reported</strong> to platform algorithms until shadowbanning occurred. The Defendant's primary channel for contesting the false narrative eliminated. Information asymmetry locked in favor of campaign orchestrators.</div></div></div>
+    <div class="timeline-item"><div class="timeline-dot red"></div><div class="timeline-content"><div class="timeline-label">Ongoing</div><div class="timeline-text"><strong>Forced displacement continues.</strong> Explicit and implied threats of physical harm repeatedly compel evacuation of locations. No charge filed. No formal proceeding initiated. The Breadcrumb Web is complete. The archive is redundant. The dead man's switch is active.</div></div></div>
+  </div>
+</section>
+
+<section class="amendments-section">
+  <div class="amendments-inner">
+    <div class="section-label reveal">Constitutional Analysis</div>
+    <h2 class="section-head reveal">Where the Shield Failed</h2>
+    <p class="reveal" style="font-size:17px; color:#7a7570; max-width:620px; line-height:1.65; margin-bottom:0;">The constitutional architecture was designed against visible, concentrated power. Each provision below was implicated — and each proved insufficient against an enemy it wasn't built to see.</p>
+    <div class="amendments-grid reveal">
+      <div class="amendment-row">
+        <div class="amendment-tag"><div class="amendment-num">1st</div><div class="amendment-name">Speech & Press</div></div>
+        <div class="amendment-body"><div class="amendment-claim">Chilling effect on protected journalistic expression</div><div class="amendment-detail">Physical exclusion, digital suppression, and pervasive surveillance created conditions in which a reasonable journalist would self-censor. Content creation activities correlated directly with clustering of law enforcement contacts — the factual foundation for First Amendment retaliation under <em>Hartman v. Moore</em> (2006).</div></div>
+      </div>
+      <div class="amendment-row">
+        <div class="amendment-tag"><div class="amendment-num">4th</div><div class="amendment-name">Search & Seizure</div></div>
+        <div class="amendment-body"><div class="amendment-claim">Mosaic surveillance and tip-based harassment without probable cause</div><div class="amendment-detail">Each police contact initiated on a fabricated anonymous tip is a discrete Fourth Amendment event. The aggregate surveillance network constitutes comprehensive monitoring addressed by the Mosaic Theory in <em>United States v. Jones</em> (2012).</div></div>
+      </div>
+      <div class="amendment-row">
+        <div class="amendment-tag"><div class="amendment-num">5th</div><div class="amendment-name">Due Process</div></div>
+        <div class="amendment-body"><div class="amendment-claim">Tried, convicted, and punished without notice, hearing, or named accuser</div><div class="amendment-detail">Documented deprivation of liberty, livelihood, and reputation — each a recognized interest under <em>Board of Regents v. Roth</em> (1972). None preceded by notice. None afforded the right to confront accusers. The stigma-plus doctrine under <em>Paul v. Davis</em> (1976) is satisfied in full.</div></div>
+      </div>
+      <div class="amendment-row">
+        <div class="amendment-tag"><div class="amendment-num">8th</div><div class="amendment-name">Cruel & Unusual</div></div>
+        <div class="amendment-body"><div class="amendment-claim">Multi-year psychological siege meeting international human rights thresholds</div><div class="amendment-detail">The sustained campaign — deliberate manipulation, entrapment, social isolation, fabricated defamation, and explicit physical threat — would constitute actionable cruel and unusual punishment under <em>Farmer v. Brennan</em> (1994) if inflicted within a correctional facility.</div></div>
+      </div>
+      <div class="amendment-row">
+        <div class="amendment-tag"><div class="amendment-num">14th</div><div class="amendment-name">Equal Protection</div></div>
+        <div class="amendment-body"><div class="amendment-claim">Constitutional protections distributed in proportion to social capital</div><div class="amendment-detail">The campaign was calibrated to housing instability — no fixed address for service, no resources for counsel, no secure base from which to pursue remedies. The law's protections proved conditional on the very stability the campaign was designed to destroy. Equal protection failure in its most fundamental form.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="vault-section">
+  <div class="section-label reveal">Public Record</div>
+  <h2 class="section-head reveal">The Documents</h2>
+  <p class="reveal" style="font-size:17px; color:var(--ink-light); max-width:620px; line-height:1.65;">Two documents. One available immediately. One available to verified attorneys, journalists, and researchers upon request.</p>
+
+  <div class="doc-grid reveal">
+
+    <!-- PUBLIC DOC -->
+    <div class="doc-card doc-card--public">
+      <div class="doc-card-badge">Public Record</div>
+      <div class="doc-card-header">
+        <div class="doc-card-type">Press Briefing</div>
+        <div class="doc-card-title">Civil Liberties Press Briefing — For Immediate Release</div>
+        <div class="doc-card-meta">March 2026 · 5 pages · PDF</div>
+      </div>
+      <p class="doc-card-desc">Summary of documented conduct, constitutional implications, and requests to the legal community, press, and legislators. Designed for immediate distribution.</p>
+      <a class="doc-btn doc-btn--download" href="https://pub-REPLACE_WITH_YOUR_HASH.r2.dev/Press_Briefing_Defendant.pdf" target="_blank" download>
+        Download PDF →
+      </a>
+    </div>
+
+    <!-- GATED DOC -->
+    <div class="doc-card doc-card--gated">
+      <div class="doc-card-badge doc-card-badge--gated">Request Required</div>
+      <div class="doc-card-header">
+        <div class="doc-card-type">Legal Research Paper</div>
+        <div class="doc-card-title">The Shield in Theory, the Gap in Practice</div>
+        <div class="doc-card-meta">March 2026 · 25 pages · PDF · Pro Se Draft</div>
+      </div>
+      <p class="doc-card-desc">Full academic and legal analysis. Constitutional doctrine, proposed framework, complete footnotes. Available to civil rights attorneys, investigative journalists, legal aid organizations, and academic researchers.</p>
+      <button class="doc-btn doc-btn--request" onclick="openGate()">
+        Request Access →
+      </button>
+    </div>
+
+  </div>
+
+  <!-- GATE MODAL -->
+  <div class="gate-overlay" id="gateOverlay" onclick="closeGate(event)">
+    <div class="gate-modal">
+      <button class="gate-close" onclick="closeGateBtn()">✕</button>
+      <div class="gate-label">Request Full Legal Paper</div>
+      <h3 class="gate-title">The Shield in Theory,<br>the Gap in Practice</h3>
+      <p class="gate-desc">Provide your details below. The document will be sent to verified attorneys, journalists, researchers, and legal aid organizations.</p>
+      <form class="gate-form" id="gateForm" onsubmit="handleGate(event)">
+        <input type="hidden" name="_subject" value="Legal Paper Request — buildwhilebleeding.com">
+        <div class="gate-row">
+          <input type="text" name="name" placeholder="Full Name" required>
+          <input type="email" name="email" placeholder="Email Address" required>
+        </div>
+        <input type="text" name="organization" placeholder="Organization / Publication / Bar Number">
+        <select name="role" required>
+          <option value="" disabled selected>I am a —</option>
+          <option>Civil Rights Attorney</option>
+          <option>Investigative Journalist</option>
+          <option>Legislative Staff</option>
+          <option>Legal Aid Organization</option>
+          <option>Academic Researcher</option>
+        </select>
+        <textarea name="message" placeholder="Brief description of your interest in this case" rows="3"></textarea>
+        <button type="submit" class="gate-submit">Submit Request →</button>
+        <p class="gate-note">All requests are logged. Document sent at sole discretion of legal counsel.</p>
+      </form>
+      <div class="gate-success" id="gateSuccess">
+        <div class="gate-success-icon">✓</div>
+        <p>Request received. You will be contacted within 48 hours.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label reveal" style="margin-top:64px;">The Counter-System</div>
+  <h2 class="section-head reveal">The Breadcrumb Web</h2>
+  <p class="reveal" style="font-size:17px; color:var(--ink-light); max-width:620px; line-height:1.65;">What began as defensive notes — just so no one could pin anything on him — became a structured forensic record. Not a diary. An evidence network. Built layer by layer, without institutional support, while the campaign was still active.</p>
+  <div class="vault-grid reveal">
+    <div class="vault-card">
+      <div class="vault-card-type">Layer 1 — Foundation</div>
+      <div class="vault-card-title">The Notes</div>
+      <div class="vault-card-desc">Before any device, before any system — handwritten contemporaneous records. Dates, locations, conduct, witnesses. The original trail. The thing that started as self-protection and became evidence.</div>
+      <div class="vault-card-arrow">Origin layer →</div>
+    </div>
+    <div class="vault-card">
+      <div class="vault-card-type">Layer 2</div>
+      <div class="vault-card-title">Timestamped Movement Logs</div>
+      <div class="vault-card-desc">Establishing lawful presence and peaceful conduct at every documented location. Direct counter-evidence to every instance of conduct recontextualization in the campaign record.</div>
+      <div class="vault-card-arrow">Evidence layer →</div>
+    </div>
+    <div class="vault-card">
+      <div class="vault-card-type">Layer 3</div>
+      <div class="vault-card-title">Behavioral Journals & Role-Tagging</div>
+      <div class="vault-card-desc">Recording atmospheric shifts, actor appearances, and convergence patterns. Recurring figures documented with anonymized designations — preserving evidentiary integrity while protecting privacy.</div>
+      <div class="vault-card-arrow">Pattern layer →</div>
+    </div>
+    <div class="vault-card">
+      <div class="vault-card-type">Layer 4 — Active</div>
+      <div class="vault-card-title">Legal Dead Man's Switch</div>
+      <div class="vault-card-desc">Complete archive configured for automatic release to designated counsel upon any harm to the Defendant. Not merely a safety measure — a deterrence instrument that alters the strategic calculus of anyone contemplating escalation.</div>
+      <div class="vault-card-arrow">Active deterrence →</div>
+    </div>
+  </div>
+  <div class="structural reveal">
+    <div class="section-label" style="margin-bottom:20px;">The Structural Argument</div>
+    <p>This case is not only about one person. It is a case study in a structural vulnerability of American constitutional democracy: <strong>the gap between formal constitutional protections and the informal mechanisms through which those protections can be systematically circumvented.</strong></p>
+    <p>No single actor did enough to trigger a constitutional remedy. The gossiper is not the state. The anonymous tipster is exercising a legal right. The business owner has authority over her premises. The algorithm is a private system. Each actor points to every other as the true source of harm — while the cumulative effect is indistinguishable from state-sponsored persecution.</p>
+    <p>This is not an accident. It is a feature. It affects every unhoused American facing coordinated community harassment. <strong>It is a gap too large to ignore.</strong></p>
+  </div>
+</section>
+
+<section class="contact-section" id="contact">
+  <div class="contact-inner">
+    <div class="section-label">For Attorneys, Journalists &amp; Legislators</div>
+    <h2 class="section-head">Request the Full Record</h2>
+    <p class="contact-desc">The complete Breadcrumb Web documentation is available upon request. Civil rights attorneys, investigative journalists, and legislative staff are invited to review the evidentiary record.</p>
+    <form class="contact-form" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div class="form-field"><input type="text" placeholder="Full Name" required></div>
+        <div class="form-field"><input type="email" placeholder="Email Address" required></div>
+      </div>
+      <div class="form-field"><input type="text" placeholder="Organization / Publication / Bar Number"></div>
+      <div class="form-field">
+        <select>
+          <option value="" disabled selected>I am a —</option>
+          <option>Civil Rights Attorney</option>
+          <option>Investigative Journalist</option>
+          <option>Legislative Staff</option>
+          <option>Legal Aid Organization</option>
+          <option>Academic Researcher</option>
+          <option>Member of the Public</option>
+        </select>
+      </div>
+      <div class="form-field"><textarea placeholder="Brief description of your interest in this case"></textarea></div>
+      <button type="submit" class="form-submit">Request Document Access →</button>
+      <p class="form-note">All requests are logged. Access granted at sole discretion of the Defendant's legal counsel.</p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-left">Civil Rights Public Record — March 2026<br>Documentation available upon request via legal counsel</div>
+  <div class="footer-right">42 U.S.C. § 1983 · 1st · 4th · 5th · 8th · 14th<br>Submitted in the public interest</div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+  }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+
+  document.querySelectorAll('.reveal, .timeline-item, .origin-stage').forEach(el => observer.observe(el));
+  document.querySelectorAll('.timeline-item').forEach((item, i) => { item.style.transitionDelay = `${i * 0.07}s`; });
+
+  // Gate modal
+  function openGate() {
+    document.getElementById('gateOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeGateBtn() {
+    document.getElementById('gateOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function closeGate(e) {
+    if (e.target === document.getElementById('gateOverlay')) closeGateBtn();
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGateBtn(); });
+
+  // Gate form — replace YOUR_FORMSPREE_ID with your actual Formspree endpoint ID
+  async function handleGate(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('.gate-submit');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('https://formspree.io/f/YOUR_FORMSPREE_ID', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      });
+      if (res.ok) {
+        form.style.display = 'none';
+        document.getElementById('gateSuccess').style.display = 'block';
+      } else {
+        btn.textContent = 'Error — try again';
+        btn.disabled = false;
+      }
+    } catch {
+      btn.textContent = 'Error — try again';
+      btn.disabled = false;
+    }
+  }
+
+  // General contact form — same Formspree endpoint
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.form-submit');
+    btn.textContent = 'Request Received — You will be contacted';
+    btn.style.background = '#2a2825';
+    btn.style.color = '#f5f2ed';
+    btn.disabled = true;
+  }
+
+  function animateCount(el, target, suffix) {
+    const duration = 1600;
+    const start = performance.now();
+    const update = (time) => {
+      const p = Math.min((time - start) / duration, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.floor(e * target) + suffix;
+      if (p < 1) requestAnimationFrame(update);
+    };
+    requestAnimationFrame(update);
+  }
+
+  const statObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const nums = entry.target.querySelectorAll('.stat-num');
+        const cfg = [{t:3,s:'+'},{t:0,s:''},{t:5,s:''},{t:0,s:''}];
+        nums.forEach((n, i) => setTimeout(() => animateCount(n, cfg[i].t, cfg[i].s), i * 150));
+        statObs.disconnect();
+      }
+    });
+  }, { threshold: 0.5 });
+
+  const strip = document.querySelector('.stat-strip');
+  if (strip) statObs.observe(strip);
+</script>
+</body>
+</html>
