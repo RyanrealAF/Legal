@@ -565,10 +565,6 @@
       <button type="submit" class="form-submit">Request Document Access →</button>
       <p class="form-note">All requests are logged. Access granted at sole discretion of the Defendant's legal counsel.</p>
     </form>
-    <div class="gate-success" id="contactSuccess" style="display: none;">
-        <div class="gate-success-icon" style="color: var(--paper)">✓</div>
-        <p style="color: #e0b8b8;">Request received. You will be contacted within 48 hours.</p>
-    </div>
   </div>
 </section>
 
@@ -599,20 +595,40 @@
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeGateBtn(); });
 
-  // Gate form
-  function handleGate(e) {
+  // Gate form — replace YOUR_FORMSPREE_ID with your actual Formspree endpoint ID
+  async function handleGate(e) {
     e.preventDefault();
     const form = e.target;
-    form.style.display = 'none';
-    document.getElementById('gateSuccess').style.display = 'block';
+    const btn = form.querySelector('.gate-submit');
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('https://formspree.io/f/YOUR_FORMSPREE_ID', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new FormData(form)
+      });
+      if (res.ok) {
+        form.style.display = 'none';
+        document.getElementById('gateSuccess').style.display = 'block';
+      } else {
+        btn.textContent = 'Error — try again';
+        btn.disabled = false;
+      }
+    } catch {
+      btn.textContent = 'Error — try again';
+      btn.disabled = false;
+    }
   }
 
-  // General contact form
+  // General contact form — same Formspree endpoint
   function handleSubmit(e) {
     e.preventDefault();
-    const form = e.target;
-    form.style.display = 'none';
-    document.getElementById('contactSuccess').style.display = 'block';
+    const btn = e.target.querySelector('.form-submit');
+    btn.textContent = 'Request Received — You will be contacted';
+    btn.style.background = '#2a2825';
+    btn.style.color = '#f5f2ed';
+    btn.disabled = true;
   }
 
   function animateCount(el, target, suffix) {
