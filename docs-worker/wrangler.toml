@@ -1,0 +1,7 @@
+name = "buildwhilebleeding-docs-worker"
+compatibility_date = "2026-03-05"
+compatibility_flags = ["nodejs_compat"]
+
+[[r2_buckets]]
+binding = "DOCS_BUCKET"
+bucket_name = "buildwhilebleeding-docs"
